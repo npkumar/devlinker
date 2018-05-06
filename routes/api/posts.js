@@ -1,4 +1,5 @@
 const express = require('express');
+
 const router = express.Router();
 
 // @route  GET api/posts/test
@@ -6,7 +7,7 @@ const router = express.Router();
 // @access Public
 router.get('/test', (req, res) => {
   res.json({
-    message: 'Posts!'
+    message: 'Posts!',
   });
 });
 

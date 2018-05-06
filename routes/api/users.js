@@ -1,4 +1,5 @@
 const express = require('express');
+
 const router = express.Router();
 const gravatar = require('gravatar');
 const bcrypt = require('bcryptjs');
@@ -18,7 +19,7 @@ const validateLoginInput = require('./../../validation/login');
 // @access Public
 router.get('/test', (req, res) => {
   res.json({
-    message: 'Users!'
+    message: 'Users!',
   });
 });
 
@@ -35,7 +36,7 @@ router.post('/register', (req, res) => {
   }
 
   User.findOne({ email })
-    .then(user => {
+    .then((user) => {
       if (user) {
         return res.status(400).json({ message: 'Email already taken!' });
       }
@@ -44,7 +45,7 @@ router.post('/register', (req, res) => {
       const avatar = gravatar.url(email, {
         s: '200',
         r: 'pg',
-        d: 'mm'
+        d: 'mm',
       });
 
       // Encrypt Password
@@ -60,22 +61,20 @@ router.post('/register', (req, res) => {
           }
 
           // Use the hashed password
-          password = hash;      
+          password = hash;
           const newUser = new User({
-            name, email, avatar, password
+            name, email, avatar, password,
           });
 
           newUser.save()
-            .then(user => {
-              return res.json(user);
-            })
-            .catch(err => {
+            .then(user => res.json(user))
+            .catch((err) => {
               console.log(err);
-              return res.status(500).json({ message: 'Internal Error '});
+              return res.status(500).json({ message: 'Internal Error ' });
             });
-        })
-      })
-    })
+        });
+      });
+    });
 });
 
 // @route  POST api/users/login
@@ -91,31 +90,28 @@ router.post('/login', (req, res) => {
 
   // Find user by email
   User.findOne({ email })
-    .then(user => {
+    .then((user) => {
       if (!user) {
         return res.status(404).json({ message: 'User not found!' });
       }
 
       // Compare password provided
       bcrypt.compare(password, user.password)
-        .then(isMatch => {
+        .then((isMatch) => {
           if (isMatch) {
             // Need to sign token
             const payload = _.pick(user, ['id', 'name', 'avatar']);
 
-            jwt.sign(payload, keys.secretOrKey, { expiresIn: 3600 }, (err, token) => {
-              return res.json({
-                success: true,
-                token: `Bearer ${token}`
-              });
-            });
+            jwt.sign(payload, keys.secretOrKey, { expiresIn: 3600 }, (err, token) => res.json({
+              success: true,
+              token: `Bearer ${token}`,
+            }));
           } else {
-
             return res.status(400).json({ message: 'Incorrect password!' });
           }
         });
     })
-    .catch(err => {
+    .catch((err) => {
 
     });
 });
