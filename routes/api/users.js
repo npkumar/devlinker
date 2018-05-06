@@ -9,6 +9,10 @@ const passport = require('passport');
 const keys = require('../../config/keys');
 const User = require('../../models/User');
 
+// Load Validation
+const validateRegisterInput = require('./../../validation/register');
+const validateLoginInput = require('./../../validation/login');
+
 // @route  GET api/users/test
 // @desc   Test users route
 // @access Public
@@ -24,10 +28,13 @@ router.get('/test', (req, res) => {
 router.post('/register', (req, res) => {
   const { name, email } = req.body;
   let { password } = req.body;
+  const { errors } = validateRegisterInput(req.body);
 
-  User.findOne({
-    emai: req.body.mail
-  })
+  if (!_.isEmpty(errors)) {
+    return res.status(400).json(errors);
+  }
+
+  User.findOne({ email })
     .then(user => {
       if (user) {
         return res.status(400).json({ message: 'Email already taken!' });
@@ -76,6 +83,11 @@ router.post('/register', (req, res) => {
 // @access Public
 router.post('/login', (req, res) => {
   const { email, password } = req.body;
+  const { errors } = validateLoginInput(req.body);
+
+  if (!_.isEmpty(errors)) {
+    return res.status(400).json(errors);
+  }
 
   // Find user by email
   User.findOne({ email })
