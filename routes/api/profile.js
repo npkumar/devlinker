@@ -3,10 +3,14 @@ const express = require('express');
 const router = express.Router();
 const passport = require('passport');
 const mongoose = require('mongoose');
+const _ = require('lodash');
 
 // Modals
 const Profile = require('../../models/Profile');
 const User = require('../../models/User');
+
+// Load Validation
+const validateProfileInput = require('./../../validation/profile');
 
 // @route  GET api/profile/test
 // @desc   Test profile route
@@ -23,6 +27,7 @@ router.get('/test', (req, res) => {
 router.get('/', passport.authenticate('jwt', { session: false }), (req, res) => {
   const errors = {};
   Profile.findOne({ user: req.user.id })
+    .populate('user', ['name', 'avatar'])
     .then((profile) => {
       if (!profile) {
         errors.noProfile = 'No User Profile found!';
@@ -38,6 +43,12 @@ router.get('/', passport.authenticate('jwt', { session: false }), (req, res) => 
 // @desc   Create or Update User profile
 // @access Private
 router.post('/', passport.authenticate('jwt', { session: false }), (req, res) => {
+  // Validation
+  const { errors } = validateProfileInput(req.body);
+  if (!_.isEmpty(errors)) {
+    return res.status(400).json(errors);
+  }
+
   const profile = {};
   profile.user = req.user.id;
   const {
@@ -56,7 +67,7 @@ router.post('/', passport.authenticate('jwt', { session: false }), (req, res) =>
 
   // Skills
   if (skills) {
-    profile.skills = skills.split(',');
+    profile.skills = skills.split(',').map(skill => skill.trim());
   }
 
   // Social
@@ -67,7 +78,7 @@ router.post('/', passport.authenticate('jwt', { session: false }), (req, res) =>
   if (linkedin) { profile.social.youtube = linkedin; }
   if (github) { profile.social.github = github; }
 
-  Profile.findOne({ user: req.user.id })
+  return Profile.findOne({ user: req.user.id })
     .then((existingProfile) => {
       if (existingProfile) {
         // update
@@ -76,12 +87,12 @@ router.post('/', passport.authenticate('jwt', { session: false }), (req, res) =>
       } else {
         // create
         // check for handle first
-        const errors = {};
+        const err = {};
         Profile.findOne({ handle: profile.handle })
           .then((profileWithExistingHandle) => {
             if (profileWithExistingHandle) {
-              errors.handle = 'Handle alreay exists!';
-              return res.status(400).json(errors);
+              err.handle = 'Handle alreay exists!';
+              return res.status(400).json(err);
             }
 
             // save profile
