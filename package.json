@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js",
     "server": "nodemon server.js",
-    "lint": "eslint *.js */*.js --fix"
+    "lint": "eslint *.js */*.js routes/api/*.js --fix"
   },
   "author": "Nitin Pradeep Kumar",
   "license": "MIT",

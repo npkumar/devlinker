@@ -35,7 +35,7 @@ router.post('/register', (req, res) => {
     return res.status(400).json(errors);
   }
 
-  User.findOne({ email })
+  return User.findOne({ email })
     .then((user) => {
       if (user) {
         return res.status(400).json({ message: 'Email already taken!' });
@@ -49,15 +49,15 @@ router.post('/register', (req, res) => {
       });
 
       // Encrypt Password
-      bcrypt.genSalt(10, (err, salt) => {
+      return bcrypt.genSalt(10, (err, salt) => {
         if (err) {
           throw err;
         }
 
         // Hash provided password
-        bcrypt.hash(password, salt, (err, hash) => {
-          if (err) {
-            throw err;
+        bcrypt.hash(password, salt, (error, hash) => {
+          if (error) {
+            throw error;
           }
 
           // Use the hashed password
@@ -66,10 +66,10 @@ router.post('/register', (req, res) => {
             name, email, avatar, password,
           });
 
-          newUser.save()
-            .then(user => res.json(user))
-            .catch((err) => {
-              console.log(err);
+          return newUser.save()
+            .then(newuser => res.json(newuser))
+            .catch((_error) => {
+              console.log(_error);
               return res.status(500).json({ message: 'Internal Error ' });
             });
         });
@@ -89,30 +89,33 @@ router.post('/login', (req, res) => {
   }
 
   // Find user by email
-  User.findOne({ email })
+  return User.findOne({ email })
     .then((user) => {
       if (!user) {
         return res.status(404).json({ message: 'User not found!' });
       }
 
       // Compare password provided
-      bcrypt.compare(password, user.password)
+      return bcrypt.compare(password, user.password)
         .then((isMatch) => {
           if (isMatch) {
             // Need to sign token
             const payload = _.pick(user, ['id', 'name', 'avatar']);
 
-            jwt.sign(payload, keys.secretOrKey, { expiresIn: 3600 }, (err, token) => res.json({
-              success: true,
-              token: `Bearer ${token}`,
-            }));
-          } else {
-            return res.status(400).json({ message: 'Incorrect password!' });
+            return jwt.sign(
+              payload, keys.secretOrKey, { expiresIn: 36000 },
+              (err, token) => res.json({
+                success: true,
+                token: `Bearer ${token}`,
+              }),
+            );
           }
+
+          return res.status(400).json({ message: 'Incorrect password!' });
         });
     })
     .catch((err) => {
-
+      console.log(err);
     });
 });
 
