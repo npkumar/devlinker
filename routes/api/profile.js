@@ -11,6 +11,11 @@ const User = require('../../models/User');
 
 // Load Validation
 const validateProfileInput = require('./../../validation/profile');
+const validateExperienceInput = require('./../../validation/experience');
+const validateEducationInput = require('./../../validation/education');
+const validatePublicationInput = require('./../../validation/publication');
+const validateAwardInput = require('./../../validation/award');
+const validateCertificationInput = require('./../../validation/certification');
 
 // @route  GET api/profile/test
 // @desc   Test profile route
@@ -105,6 +110,172 @@ router.post('/', passport.authenticate('jwt', { session: false }), (req, res) =>
     .catch((err) => {
       console.log(err);
     });
+});
+
+// @route  GET api/profile/all
+// @desc   Get all profiles
+// @access Public
+router.get('/all', (req, res) => {
+  Profile.find()
+    .populate('user', ['name', 'avatar'])
+    .then(profiles => res.json(profiles))
+    .catch(() => res.status(500).json({ message: 'Internal Error' }));
+});
+
+// @route  GET api/profile/handle/:handle
+// @desc   Get profile by handle
+// @access Public
+router.get('/handle/:handle', (req, res) => {
+  const errors = {};
+  return Profile.findOne({ handle: req.params.handle })
+    .populate('user', ['name', 'avatar'])
+    .then((profile) => {
+      if (!profile) {
+        errors.noProfile = 'Not Profile found';
+        return res.status(404).json(errors);
+      }
+
+      return res.json(profile);
+    })
+    .catch(() => res.status(404).json({ message: 'Profile not found' }));
+});
+
+// @route  GET api/profile/user/:user_id
+// @desc   Get profile by user_id
+// @access Public
+router.get('/user/:user_id', (req, res) => {
+  const errors = {};
+  return Profile.findOne({ user: req.params.user_id })
+    .populate('user', ['name', 'avatar'])
+    .then((profile) => {
+      if (!profile) {
+        errors.noProfile = 'Not Profile found';
+        return res.status(404).json(errors);
+      }
+
+      return res.json(profile);
+    })
+    .catch(() => res.status(404).json({ message: 'Profile not found' }));
+});
+
+// @route  POST api/profile/experience
+// @desc   Add experience to profile
+// @access Private
+router.post('/experience', passport.authenticate('jwt', { session: false }), (req, res) => {
+  const { errors } = validateExperienceInput(req.body);
+  if (!_.isEmpty(errors)) {
+    return res.status(400).json(errors);
+  }
+
+  return Profile.findOne({ user: req.user.id })
+    .then((profile) => {
+      const newExperience = _.pick(req.body, [
+        'title', 'company', 'location', 'from', 'to', 'current', 'description',
+      ]);
+
+      // Add to beginning of list of experiences
+      profile.experience.unshift(newExperience);
+      profile
+        .save()
+        .then(p => res.json(p));
+    })
+    .catch(() => res.status(500).json({ message: 'Internal Error' }));
+});
+
+// @route  POST api/profile/education
+// @desc   Add education to profile
+// @access Private
+router.post('/education', passport.authenticate('jwt', { session: false }), (req, res) => {
+  const { errors } = validateEducationInput(req.body);
+  if (!_.isEmpty(errors)) {
+    return res.status(400).json(errors);
+  }
+
+  return Profile.findOne({ user: req.user.id })
+    .then((profile) => {
+      const newEducation = _.pick(req.body, [
+        'school', 'degree', 'fieldOfStudy', 'from', 'to', 'current', 'description',
+      ]);
+
+      // Add to beginning of list of education
+      profile.education.unshift(newEducation);
+      profile
+        .save()
+        .then(p => res.json(p));
+    })
+    .catch(() => res.status(500).json({ message: 'Internal Error' }));
+});
+
+// @route  POST api/profile/publication
+// @desc   Add publication to profile
+// @access Private
+router.post('/publication', passport.authenticate('jwt', { session: false }), (req, res) => {
+  const { errors } = validatePublicationInput(req.body);
+  if (!_.isEmpty(errors)) {
+    return res.status(400).json(errors);
+  }
+
+  return Profile.findOne({ user: req.user.id })
+    .then((profile) => {
+      const newPublication = _.pick(req.body, [
+        'title', 'description', 'date',
+      ]);
+
+      // Add to beginning of list of publications
+      profile.publication.unshift(newPublication);
+      profile
+        .save()
+        .then(p => res.json(p));
+    })
+    .catch(() => res.status(500).json({ message: 'Internal Error' }));
+});
+
+// @route  POST api/profile/award
+// @desc   Add award to profile
+// @access Private
+router.post('/award', passport.authenticate('jwt', { session: false }), (req, res) => {
+  const { errors } = validateAwardInput(req.body);
+  if (!_.isEmpty(errors)) {
+    return res.status(400).json(errors);
+  }
+
+  return Profile.findOne({ user: req.user.id })
+    .then((profile) => {
+      const newAward = _.pick(req.body, [
+        'title', 'description', 'date',
+      ]);
+
+      // Add to beginning of list of awards
+      profile.award.unshift(newAward);
+      profile
+        .save()
+        .then(p => res.json(p));
+    })
+    .catch(() => res.status(500).json({ message: 'Internal Error' }));
+});
+
+// @route  POST api/profile/certification
+// @desc   Add certification to profile
+// @access Private
+router.post('/certification', passport.authenticate('jwt', { session: false }), (req, res) => {
+  const { errors } = validateCertificationInput(req.body);
+  if (!_.isEmpty(errors)) {
+    return res.status(400).json(errors);
+  }
+
+  return Profile.findOne({ user: req.user.id })
+    .then((profile) => {
+      const newCertification = _.pick(req.body, [
+        'title', 'description', 'date',
+      ]);
+
+      // Add to beginning of list of certifications
+      profile.certification.unshift(newCertification);
+      profile
+        .save()
+        .then(p => res.json(p));
+    })
+    .catch(() => res.status(500).json({ message: 'Internal Error' }));
 });
 
 module.exports = router;
