@@ -2,7 +2,6 @@ const express = require('express');
 
 const router = express.Router();
 const passport = require('passport');
-const mongoose = require('mongoose');
 const _ = require('lodash');
 
 // Modals
@@ -277,5 +276,96 @@ router.post('/certification', passport.authenticate('jwt', { session: false }), 
     })
     .catch(() => res.status(500).json({ message: 'Internal Error' }));
 });
+
+// @route  DELETE api/profile/experience/:id
+// @desc   Delete an experience
+// @access Private
+router.delete('/experience/:id', passport.authenticate('jwt', { session: false }), (req, res) => Profile.findOne({ user: req.user.id })
+  .then((profile) => {
+    const index = _.findIndex(profile.experience, exp => exp.id === req.params.id);
+    if (index > -1) {
+      profile.experience.splice(index, 1);
+    }
+
+    profile
+      .save()
+      .then(p => res.json(p));
+  })
+  .catch(err => res.status(404).json(err)));
+
+// @route  DELETE api/profile/education/:id
+// @desc   Delete an education
+// @access Private
+router.delete('/education/:id', passport.authenticate('jwt', { session: false }), (req, res) => Profile.findOne({ user: req.user.id })
+  .then((profile) => {
+    const index = _.findIndex(profile.education, exp => exp.id === req.params.id);
+    if (index > -1) {
+      profile.education.splice(index, 1);
+    }
+
+    profile
+      .save()
+      .then(p => res.json(p));
+  })
+  .catch(err => res.status(404).json(err)));
+
+// @route  DELETE api/profile/award/:id
+// @desc   Delete an award
+// @access Private
+router.delete('/award/:id', passport.authenticate('jwt', { session: false }), (req, res) => Profile.findOne({ user: req.user.id })
+  .then((profile) => {
+    const index = _.findIndex(profile.award, exp => exp.id === req.params.id);
+    if (index > -1) {
+      profile.award.splice(index, 1);
+    }
+
+    profile
+      .save()
+      .then(p => res.json(p));
+  })
+  .catch(err => res.status(404).json(err)));
+
+// @route  DELETE api/profile/certification/:id
+// @desc   Delete a certification
+// @access Private
+router.delete('/certification/:id', passport.authenticate('jwt', { session: false }), (req, res) => Profile.findOne({ user: req.user.id })
+  .then((profile) => {
+    const index = _.findIndex(profile.certification, exp => exp.id === req.params.id);
+    if (index > -1) {
+      profile.certification.splice(index, 1);
+    }
+
+    profile
+      .save()
+      .then(p => res.json(p));
+  })
+  .catch(err => res.status(404).json(err)));
+
+// @route  DELETE api/profile/publication/:id
+// @desc   Delete a publication
+// @access Private
+router.delete('/publication/:id', passport.authenticate('jwt', { session: false }), (req, res) => Profile.findOne({ user: req.user.id })
+  .then((profile) => {
+    const index = _.findIndex(profile.publication, exp => exp.id === req.params.id);
+    if (index > -1) {
+      profile.publication.splice(index, 1);
+    }
+
+    profile
+      .save()
+      .then(p => res.json(p));
+  })
+  .catch(err => res.status(404).json(err)));
+
+
+// @route  DELETE api/profile
+// @desc   Delete user and profilel
+// @access Private
+router.delete('/', passport.authenticate('jwt', { session: false }), (req, res) => Profile.findOneAndRemove({ user: req.user.id })
+  .then(() => {
+    User.findOneAndRemove({ id: req.user.id });
+  })
+  .then(() => res.json({ success: true }))
+  .catch(() => res.status(500).json({ message: 'Internal Error' })));
 
 module.exports = router;
