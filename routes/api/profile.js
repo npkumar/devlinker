@@ -139,12 +139,12 @@ router.get('/handle/:handle', (req, res) => {
     .catch(() => res.status(404).json({ message: 'Profile not found' }));
 });
 
-// @route  GET api/profile/user/:user_id
-// @desc   Get profile by user_id
+// @route  GET api/profile/user/:id
+// @desc   Get profile by id
 // @access Public
-router.get('/user/:user_id', (req, res) => {
+router.get('/user/:id', (req, res) => {
   const errors = {};
-  return Profile.findOne({ user: req.params.user_id })
+  return Profile.findOne({ user: req.params.id })
     .populate('user', ['name', 'avatar'])
     .then((profile) => {
       if (!profile) {

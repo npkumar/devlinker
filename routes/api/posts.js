@@ -82,10 +82,10 @@ router.delete('/:id', passport.authenticate('jwt', { session: false }), (req, re
   })
   .catch(() => res.status(404).json({ message: 'Not found' })));
 
-// @route  POST api/posts/like/:id
+// @route  POST api/posts/:id/like
 // @desc   Like a Post
 // @access Private
-router.post('/like/:id', passport.authenticate('jwt', { session: false }), (req, res) => Profile.findOne({ user: req.user.id })
+router.post('/:id/like', passport.authenticate('jwt', { session: false }), (req, res) => Profile.findOne({ user: req.user.id })
   .then((profile) => {
     if (!_.isNil(profile)) {
       return Post.findById(req.params.id);
@@ -105,10 +105,10 @@ router.post('/like/:id', passport.authenticate('jwt', { session: false }), (req,
   })
   .catch(() => res.status(404).json({ message: 'Not found' })));
 
-// @route  POST api/posts/unlike/:id
+// @route  POST api/posts/:id/unlike
 // @desc   Unlike a Post
 // @access Private
-router.post('/unlike/:id', passport.authenticate('jwt', { session: false }), (req, res) => Profile.findOne({ user: req.user.id })
+router.post('/:id/unlike', passport.authenticate('jwt', { session: false }), (req, res) => Profile.findOne({ user: req.user.id })
   .then((profile) => {
     if (!_.isNil(profile)) {
       return Post.findById(req.params.id);
@@ -126,6 +126,44 @@ router.post('/unlike/:id', passport.authenticate('jwt', { session: false }), (re
     }
 
     return null;
+  })
+  .catch(() => res.status(404).json({ message: 'Not found' })));
+
+// @route  POST api/posts/:id/comment
+// @desc   Add a comment to post
+// @access Private
+router.post('/:id/comment', passport.authenticate('jwt', { session: false }), (req, res) => {
+  const { errors } = validatePostInput(req.body);
+  if (!_.isEmpty(errors)) {
+    return res.status(400).json(errors);
+  }
+
+  const { text, name, avatar } = req.body;
+
+  return Post.findById(req.params.id)
+    .then((post) => {
+      const newComment = {
+        text,
+        name,
+        avatar,
+        user: req.user.id,
+      };
+
+      post.comments.unshift(newComment);
+      return post.save().then(p => res.json(p));
+    })
+    .catch(() => res.status(404).json({ message: 'Not found' }));
+});
+
+// @route  DELETE api/posts/:id/comment/:comment_id
+// @desc   Delete a comment from a post
+// @access Private
+router.delete('/:id/comment/:comment_id', passport.authenticate('jwt', { session: false }), (req, res) => Post.findById(req.params.id)
+  .then((post) => {
+    const index = _.findIndex(post.comments, comment => (comment.user.toString() === req.user.id && comment.id.toString() === req.params.comment_id));
+    post.comments.splice(index, 1);
+
+    return post.save().then(p => res.json(p));
   })
   .catch(() => res.status(404).json({ message: 'Not found' })));
 
