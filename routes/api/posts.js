@@ -82,4 +82,51 @@ router.delete('/:id', passport.authenticate('jwt', { session: false }), (req, re
   })
   .catch(() => res.status(404).json({ message: 'Not found' })));
 
+// @route  POST api/posts/like/:id
+// @desc   Like a Post
+// @access Private
+router.post('/like/:id', passport.authenticate('jwt', { session: false }), (req, res) => Profile.findOne({ user: req.user.id })
+  .then((profile) => {
+    if (!_.isNil(profile)) {
+      return Post.findById(req.params.id);
+    }
+    return null;
+  })
+  .then((post) => {
+    if (post) {
+      if (_.filter(post.likes, like => like.user.toString() === req.user.id).length > 0) {
+        return res.status(400).json({ message: 'Already liked!' });
+      }
+      post.likes.unshift({ user: req.user.id });
+      return post.save().then(p => res.json(p));
+    }
+
+    return null;
+  })
+  .catch(() => res.status(404).json({ message: 'Not found' })));
+
+// @route  POST api/posts/unlike/:id
+// @desc   Unlike a Post
+// @access Private
+router.post('/unlike/:id', passport.authenticate('jwt', { session: false }), (req, res) => Profile.findOne({ user: req.user.id })
+  .then((profile) => {
+    if (!_.isNil(profile)) {
+      return Post.findById(req.params.id);
+    }
+    return null;
+  })
+  .then((post) => {
+    if (post) {
+      if (_.filter(post.likes, like => like.user.toString() === req.user.id).length === 0) {
+        return res.status(400).json({ message: 'Not liked!' });
+      }
+      const index = _.findIndex(post.likes, like => like.user.toString() === req.user.id);
+      post.likes.splice(index, 1);
+      return post.save().then(p => res.json(p));
+    }
+
+    return null;
+  })
+  .catch(() => res.status(404).json({ message: 'Not found' })));
+
 module.exports = router;
