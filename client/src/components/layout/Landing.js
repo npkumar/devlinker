@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { Link } from 'react-router-dom';
 
 class Landing extends Component {
   render() {
@@ -11,8 +12,8 @@ class Landing extends Component {
                 <h1 className="display-3 mb-4 text-warning">Social Coder</h1>
                 <p className="lead">A better way to connect, share and discuss with like minded developers</p>
                 <hr />
-                <a href="register.html" className="btn btn-lg btn-warning mr-2">Sign Up</a>
-                <a href="login.html" className="btn btn-lg btn-light">Login</a>
+                <Link to="/register" className="btn btn-lg btn-warning mr-2">Sign Up</Link>
+                <Link to="/login" className="btn btn-lg btn-light">Login</Link>
               </div>
             </div>
           </div>
