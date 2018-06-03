@@ -48,3 +48,10 @@ export const loginUser = (userData) => dispatch => {
       });
     })
 };
+
+export const setUser = decoded => {
+  return {
+    type: SET_USER,
+    payload: decoded
+  };
+}

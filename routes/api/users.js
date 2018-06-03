@@ -92,7 +92,7 @@ router.post('/login', (req, res) => {
   return User.findOne({ email })
     .then((user) => {
       if (!user) {
-        return res.status(404).json({ message: 'User not found!' });
+        return res.status(404).json({ email: 'User not found!' });
       }
 
       // Compare password provided
@@ -111,7 +111,7 @@ router.post('/login', (req, res) => {
             );
           }
 
-          return res.status(400).json({ message: 'Incorrect password!' });
+          return res.status(400).json({ password: 'Incorrect password!' });
         });
     })
     .catch((err) => {
