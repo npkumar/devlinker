@@ -55,3 +55,18 @@ export const setUser = decoded => {
     payload: decoded
   };
 }
+
+// Logout User
+export const logoutUser = () => dispatch => {
+  // Remove token from local storage
+  localStorage.removeItem('jwtToken');
+
+  // Remove header
+  setAuthToken(false);
+
+  // Reset user
+  dispatch({
+    type: 'SET_USER',
+    payload: {}
+  });
+}
