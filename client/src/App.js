@@ -4,6 +4,7 @@ import { Provider } from 'react-redux';
 import jwtDecode from 'jwt-decode';
 import setAuthToken from './utils/setAuthToken';
 import { setUser, logoutUser } from './actions/authActions';
+import { clearCurrentProfile } from './actions/profileActions';
 import store from './store';
 
 import Navbar from './components/layout/Navbar';
@@ -13,6 +14,7 @@ import Landing from './components/layout/Landing';
 
 import Register from './components/auth/Register';
 import Login from './components/auth/Login';
+import Dashboard from './components/dashboard/Dashboard';
 
 import './App.css';
 
@@ -26,6 +28,10 @@ if (localStorage.jwtToken) {
   if (decoded.exp < now) {
     // Expired, logout user and redirect
     store.dispatch(logoutUser());
+
+    // Clear current user profile
+    store.dispatch(clearCurrentProfile());
+
     window.location.href = '/login';
   } else {
     // All good, set user
@@ -46,6 +52,7 @@ class App extends Component {
             <div className="container">
               <Route exact path="/register" component={ Register } />
               <Route exact path="/login" component={ Login } />
+              <Route exact path="/dashboard" component={ Dashboard } />
             </div>
             <Footer />
           </div>
