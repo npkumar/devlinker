@@ -4,15 +4,15 @@ const _ = require('lodash');
 module.exports = function validateProfileInput(data) {
   const errors = {};
 
-  if (_.isNil(data.handle) || !Validator.isLength(data.handle, { min: 2, max: 40 })) {
+  if (_.isEmpty(data.handle) || !Validator.isLength(data.handle, { min: 2, max: 40 })) {
     errors.handle = 'Please provide handle between 2 to 40 chars';
   }
 
-  if (_.isNil(data.status)) {
+  if (_.isEmpty(data.status)) {
     errors.status = 'Status is required';
   }
 
-  if (_.isNil(data.skills)) {
+  if (_.isEmpty(data.skills)) {
     errors.skills = 'Skills is required';
   }
 

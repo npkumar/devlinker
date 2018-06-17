@@ -78,8 +78,8 @@ router.post('/', passport.authenticate('jwt', { session: false }), (req, res) =>
   profile.social = {};
   if (youtube) { profile.social.youtube = youtube; }
   if (twitter) { profile.social.twitter = twitter; }
-  if (facebook) { profile.social.youtube = facebook; }
-  if (linkedin) { profile.social.youtube = linkedin; }
+  if (facebook) { profile.social.facebook = facebook; }
+  if (linkedin) { profile.social.linkedin = linkedin; }
   if (github) { profile.social.github = github; }
 
   return Profile.findOne({ user: req.user.id })

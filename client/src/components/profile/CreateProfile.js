@@ -1,10 +1,13 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux';
+import { withRouter } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import TextFieldGroup from '../common/TextFieldGroup';
 import TextAreaFieldGroup from '../common/TextAreaFieldGroup';
 import SelectListGroup from '../common/SelectListGroup';
 import InputGroup from '../common/InputGroup';
+
+import { createProfile } from '../../actions/profileActions';
 
 class CreateProfile extends Component {
   constructor(props) {
@@ -22,6 +25,7 @@ class CreateProfile extends Component {
       twitter: '',
       facebook: '',
       linkedin: '',
+      github: '',
       errors: {}
     };
 
@@ -29,8 +33,33 @@ class CreateProfile extends Component {
     this.onSubmit = this.onSubmit.bind(this);
   }
 
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.errors) {
+      this.setState({
+        errors: nextProps.errors
+      });
+    }
+  }
+
   onSubmit(e) {
     e.preventDefault();
+
+    const profileData = {
+      handle: this.state.handle,
+      company: this.state.company,
+      website: this.state.website,
+      location: this.state.location,
+      status: this.state.status,
+      skills: this.state.skills,
+      githubUsername: this.state.githubUsername,
+      bio: this.state.bio,
+      twitter: this.state.twitter,
+      facebook: this.state.facebook,
+      linkedin: this.state.linkedin,
+      github: this.state.github
+    }
+
+    this.props.createProfile(profileData, this.props.history);
   }
 
   onChange(e) {
@@ -47,6 +76,15 @@ class CreateProfile extends Component {
     }, {
       label: 'Developer',
       value: 'Developer'
+    }, {
+      label: 'FrontEnd Developer',
+      value: 'FrontEnd Developer'
+    }, {
+      label: 'BackEnd Developer',
+      value: 'BackEnd Developer'
+    }, {
+      label: 'Full Stack Developer',
+      value: 'Full Stack Developer'
     }, {
       label: 'Medior Developer',
       value: 'Medior Developer'
@@ -70,11 +108,20 @@ class CreateProfile extends Component {
       socialInputs = (
         <div>
           <InputGroup
+            name="github"
+            placeholder="Github"
+            icon="fab fa-github"
+            value={this.state.github}
+            onChange={this.onChange}
+            errors={errors.github}
+            />
+
+          <InputGroup
             name="linkedin"
             placeholder="LinkedIn"
             icon="fab fa-linkedin"
             value={this.state.linkedin}
-            onChange={this.state.onChange}
+            onChange={this.onChange}
             errors={errors.linkedin}
             />
 
@@ -83,7 +130,7 @@ class CreateProfile extends Component {
             placeholder="Twitter"
             icon="fab fa-twitter"
             value={this.state.twitter}
-            onChange={this.state.onChange}
+            onChange={this.onChange}
             errors={errors.twitter}
             />
 
@@ -92,7 +139,7 @@ class CreateProfile extends Component {
             placeholder="Facebook"
             icon="fab fa-facebook"
             value={this.state.facebook}
-            onChange={this.state.onChange}
+            onChange={this.onChange}
             errors={errors.facebook}
             />
         </div>
@@ -182,12 +229,13 @@ class CreateProfile extends Component {
 
                 <div className="mb-3">
                   <button
+                    type="button"
                     onClick={() => {
                       this.setState(prevState => ({
                         displaySocialInputs: !prevState.displaySocialInputs
                       }))
                     }}
-                    className="btn btn-light ">
+                    className="btn btn-info">
                     Social Network Links
                   </button>
                   <span className="text-muted"> *Optional</span>
@@ -216,4 +264,6 @@ const mapStateToProps = state => ({
   errors: state.errorReducer
 });
 
-export default connect(mapStateToProps)(CreateProfile);
+export default connect(mapStateToProps, {
+  createProfile
+})(withRouter(CreateProfile));
