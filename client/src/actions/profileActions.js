@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { GET_ERRORS, GET_PROFILE, PROFILE_LOADING, CLEAR_CURRENT_PROFILE } from './types';
+import { GET_ERRORS, GET_PROFILE, PROFILE_LOADING, CLEAR_CURRENT_PROFILE, SET_USER } from './types';
 
 export const getCurrentProfile = () => dispatch => {
   dispatch(setProfileLoading());
@@ -39,5 +39,24 @@ export const setProfileLoading = () => {
 export const clearCurrentProfile = () => {
   return {
     type: CLEAR_CURRENT_PROFILE
+  }
+}
+
+export const deleteProfile = () => dispatch => {
+  if (window.confirm('Are you sure?')) {
+    axios
+      .delete('/api/profile')
+      .then(res => {
+        dispatch({
+          type: SET_USER,
+          payload: {}
+        })
+      })
+      .catch(err => {
+        dispatch({
+          type: GET_ERRORS,
+          payload: err.response.data
+        })
+      })
   }
 }
